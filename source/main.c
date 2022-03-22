@@ -1,5 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +33,8 @@ int main(int argc, char* argv[]) {
 	u32 colors[] = {clrRed, clrGreen, clrBlue, clrWhite, clrBlack};
 	u8 len = sizeof(colors)/sizeof(u32);
 	u8 index = 0;
-	u8 timer = 60;
+	time_t max = 60;
+	time_t begin = time(NULL);
     C2D_TargetClear(bottom, clrBackground);
 
 	bool eraser = 0;
@@ -71,8 +73,15 @@ int main(int argc, char* argv[]) {
 			str = "Off";
 		}
 		printf("\x1b[7;1HEraser:   %s\x1b[K", str);
-		printf("\x1b[8;1HTimer:    %hhu\x1b[K", timer);
-
+		time_t timer = max - (time(NULL) - begin);
+		//TODO code to execute when time finished
+		if(timer<1){
+			C2D_TargetClear(bottom, clrBackground);
+			timer = max;
+			begin = time(NULL);
+		}
+		printf("\x1b[8;1HTimer:    %lld\x1b[K", timer);
+		
         // Render the scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         // C2D_TargetClear(top, clrClear);
