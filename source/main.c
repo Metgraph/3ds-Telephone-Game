@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
 
     // Create screens
     C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
-    C3D_RenderTarget* test = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     // Create colors
+    u32 transparent = C2D_Color32(0x00, 0x00, 0x00, 0x00);
     u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
     u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
     u32 clrRed = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
         if (kDown & KEY_START) break;  // break in order to return to hbmenu
         if (kDown & KEY_X) C2D_TargetClear(bottom, clrBackground);
 		if(kDown & KEY_RIGHT){
-			index = (index+1)%len;
+			index = (index + 1) % len;
 		}else if(kDown & KEY_LEFT){
 			if(index == 0x00) {
 				index = len -1;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 		
         // Render the scene
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        // C2D_TargetClear(top, clrClear);
+		//C2D_TargetClear(bottom, transparent);
         C2D_SceneBegin(bottom);
 
 		//if touch = {0,0} user is not pressing touch screen
@@ -103,12 +103,15 @@ int main(int argc, char* argv[]) {
 				if(eraser){
 					color = clrBackground;
 					thickness = 8.0;
-				}else{
+					C2D_DrawRectangle(last_touch.px, last_touch.py, 0, 8, 8, color, color, color, color);
+					C2D_DrawRectangle(touch.px, touch.py, 0, 8, 8, clrBlack, clrBlack, clrBlack, clrBlack);
+					C2D_DrawRectangle(touch.px + 1, touch.py + 1, 0, 6, 6, color, color, color, color);
+					C2D_DrawLine(last_touch.px, last_touch.py, color, touch.px, touch.py, color, 15.0, 0);
+				} else {
 					color = colors[index];
 					thickness = 2.0;
 				}
-                C2D_DrawLine(last_touch.px, last_touch.py, color, touch.px,
-                             touch.py, color, thickness, 0);
+                C2D_DrawLine(last_touch.px, last_touch.py, color, touch.px, touch.py, color, thickness, 0);
                 printf("\x1b[5;1HDrawing:  Y\x1b[K");
             } else {
                 printf("\x1b[5;1HDrawing:  R\x1b[K");
@@ -119,8 +122,8 @@ int main(int argc, char* argv[]) {
             last_touch.py = 0;
             printf("\x1b[5;1HDrawing:  N\x1b[K");
         }
-        C3D_FrameEnd(0);
         // gspWaitForVBlank();
+        C3D_FrameEnd(0);
     }
 
     // Deinit libs
