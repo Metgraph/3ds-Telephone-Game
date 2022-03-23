@@ -4,3 +4,4 @@
 *.smdh
 build/
 *.lst
+*.bat

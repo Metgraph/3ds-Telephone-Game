@@ -21,6 +21,7 @@ int main(int argc, char* argv[]) {
 
     // Create screens
     C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+    C3D_RenderTarget* test = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     // Create colors
     u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
@@ -52,8 +53,11 @@ int main(int argc, char* argv[]) {
 		if(kDown & KEY_RIGHT){
 			index = (index+1)%len;
 		}else if(kDown & KEY_LEFT){
-			index = (index-1)%len;
-			if(index<0) index = len -1;
+			if(index == 0x00) {
+				index = len -1;
+			} else {
+				index = index - 1;
+			}
 		}
 		if(kDown & KEY_B) eraser = !eraser;
 
@@ -64,7 +68,8 @@ int main(int argc, char* argv[]) {
         printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime() * 6.0f);
         printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K",
                C3D_GetCmdBufUsage() * 100.0f);
-		printf("\x1b[6;1HColor:   %s\x1b[K", color_name[index]);
+		printf("\x1b[6;1HColor:   %d\x1b[K", index);
+		//printf("\x1b[6;1HColor:   %s\x1b[K", color_name[index]);
 
 		char* str;
 		if(eraser){
