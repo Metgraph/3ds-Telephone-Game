@@ -13,13 +13,17 @@ const char* color_name[] = {"Red", "Green", "Blue", "White", "Black"};
 const float erase_size = 10.f;
 const float erase_border = 1.f;
 // Create colors
-//clrRed, clrGreen, clrBlue, clrWhite, clrBlack with values saved in the order ABGR
-const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF000000};
+// clrRed, clrGreen, clrBlue, clrWhite, clrBlack with values saved in the order
+// ABGR
+const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
+                      0xFF000000};
 #define clrRed colors[0]
 #define clrGreen colors[1]
 #define clrBlue colors[2]
 #define clrWhite colors[3]
 #define clrBlack colors[4]
+// define background color
+#define clrBackground clrWhite
 
 float float_abs(float n) { return n < 0 ? -n : n; }
 
@@ -55,16 +59,15 @@ void draw_erase(touchPosition* touch, float e_size, float e_border,
                       erase_size - (erase_border * 2.f), c_background);
 }
 
-void draw(u32 kDown, C3D_RenderTarget* screen, u8 len,
-          u8 clrBgInd) {
-// defines
-// #define clrWhite colors[3]
-// #define clrBlack colors[4]
+void draw(u32 kDown, C3D_RenderTarget* screen, u8 len, u8 clrBgInd) {
     // save background color in a variable
     u32 clrBackground = colors[clrBgInd];
+
     static u8 index = 0;
     static bool eraser = 0;
     static touchPosition last_touch = {0, 0};
+
+    // key down related actions
     if (kDown & KEY_X) C2D_TargetClear(screen, clrBackground);
     if (kDown & KEY_RIGHT) {
         index = (index + 1) % len;
@@ -75,8 +78,10 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u8 len,
             index = index - 1;
         }
     }
+
     bool remove_erase_drawing = 0;
     if (kDown & KEY_B) {
+        // check if is needed to clean eraser drawing
         remove_erase_drawing =
             eraser && (last_touch.px != 0 || last_touch.py != 0);
         eraser = !eraser;
@@ -106,29 +111,39 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u8 len,
     hidTouchRead(&touch);
     if (touch.px != 0 || touch.py != 0) {
         if (last_touch.px != 0 || last_touch.py != 0) {
+            // eraser
             if (eraser) {
+                // calculate the thickness so the line will fit the eraser
+                // dimension
                 float thickness = get_thickness(last_touch.px, last_touch.py,
                                                 touch.px, touch.py, erase_size);
+                // draw line between last_touch and touch
                 C2D_DrawLine(last_touch.px, last_touch.py, clrBackground,
                              touch.px, touch.py, clrBackground, thickness, 0);
-                // draw_erase(&last_touch, erase_size, erase_border, clrWhite,
-                //            clrWhite);
+                // remove old eraser drawing
                 C2D_DrawRectSolid(last_touch.px - (erase_size / 2.f),
                                   last_touch.py - (erase_size / 2.f), 0.f,
                                   erase_size, erase_size, clrWhite);
+                // draw new eraser drawing
                 draw_erase(&touch, erase_size, erase_border, clrBlack,
                            clrWhite);
+
+                // pencil
             } else {
+                // if needed clear the area of last touch because there is
+                // eraser drawing to be removed
                 if (remove_erase_drawing) {
                     C2D_DrawRectSolid(last_touch.px - (erase_size / 2.f),
                                       last_touch.py - (erase_size / 2.f), 0.f,
                                       erase_size, erase_size, clrWhite);
                 }
+                // draw pencil
                 C2D_DrawLine(last_touch.px, last_touch.py, colors[index],
                              touch.px, touch.py, colors[index], 2.0, 0);
             }
             printf("\x1b[5;1HDrawing:  Y\x1b[K");
         }
+        // save touch for the next itereation
         last_touch = touch;
     } else {
         if (eraser && (last_touch.px != 0 || last_touch.py != 0)) {
@@ -142,9 +157,9 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u8 len,
         last_touch.py = 0;
         printf("\x1b[5;1HDrawing:  N\x1b[K");
     }
-// C3D_FrameEnd(0);
-// #undef clrWhite
-// #undef clrBlack
+    // C3D_FrameEnd(0);
+    // #undef clrWhite
+    // #undef clrBlack
 }
 
 int main(int argc, char* argv[]) {
@@ -156,19 +171,9 @@ int main(int argc, char* argv[]) {
     C2D_Prepare();
     consoleInit(GFX_TOP, NULL);
 
-    // Create screens
+    // Get screen target
     C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-    // Create colors
-    // u32 transparent = C2D_Color32(0x00, 0x00, 0x00, 0x00);
-    // u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
-    // u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
-    // u32 clrRed = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
-    // u32 clrBlue = C2D_Color32(0x00, 0x00, 0xFF, 0xFF);
-    // u32 clrBlack = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
-
-#define clrBackground clrWhite
-    // u32 colors[] = {clrRed, clrGreen, clrBlue, clrWhite, clrBlack};
     u8 len = sizeof(colors) / sizeof(u32);
     time_t max = 60;
     time_t begin = time(NULL);
@@ -189,7 +194,7 @@ int main(int argc, char* argv[]) {
         // Respond to user input
         u32 kDown = hidKeysDown();
         if (kDown & KEY_START) break;  // break in order to return to hbmenu
-        
+
         draw(kDown, bottom, len, 3);
         C3D_FrameEnd(0);
         C3D_FrameEnd(0);
