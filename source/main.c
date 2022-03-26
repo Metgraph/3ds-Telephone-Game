@@ -139,9 +139,9 @@ int main(int argc, char* argv[]) {
 
     // Create screens
     C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
-    // C3D_RenderTarget* test = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     // Create colors
+    u32 transparent = C2D_Color32(0x00, 0x00, 0x00, 0x00);
     u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
     u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
     u32 clrRed = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
@@ -173,6 +173,7 @@ int main(int argc, char* argv[]) {
         draw(kDown, bottom, colors, len, 3);
         C3D_FrameEnd(0);
         // gspWaitForVBlank();
+        C3D_FrameEnd(0);
     }
 
     // Deinit libs
