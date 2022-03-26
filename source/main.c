@@ -61,7 +61,7 @@ void draw_erase(touchPosition* touch, float e_size, float e_border,
 
 void draw(u32 kDown, C3D_RenderTarget* screen, u8 len, u8 clrBgInd) {
     // save background color in a variable
-    u32 clrBackground = colors[clrBgInd];
+    // u32 clrBackground = colors[clrBgInd];
 
     static u8 index = 0;
     static bool eraser = 0;
@@ -158,13 +158,10 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u8 len, u8 clrBgInd) {
         printf("\x1b[5;1HDrawing:  N\x1b[K");
     }
     // C3D_FrameEnd(0);
-    // #undef clrWhite
-    // #undef clrBlack
+    // #undef clrWhiteshowUnpublishedCommitsButton
 }
 
 int main(int argc, char* argv[]) {
-    //---------------------------------------------------------------------------------
-    // Init libs
     gfxInitDefault();
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
