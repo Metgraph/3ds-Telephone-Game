@@ -65,16 +65,19 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 colors[], u8 len,
             index = index - 1;
         }
     }
-    if (kDown & KEY_B) eraser = !eraser;
+    bool remove_erase_drawing = 0;
+    if (kDown & KEY_B) {
+        remove_erase_drawing =
+            eraser && (last_touch.px != 0 || last_touch.py != 0);
+        eraser = !eraser;
+    }
 
     // prints
     printf("\x1b[1;1HSimple citro2d shapes example");
     printf("\x1b[2;1HCPU:     %6.2f%%\x1b[K", C3D_GetProcessingTime() * 6.0f);
     printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime() * 6.0f);
     printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage() * 100.0f);
-    // printf("\x1b[6;1HColor:   %d\x1b[K", index);
     printf("\x1b[6;1HColor:   %s\x1b[K", color_name[index]);
-
     char* str;
     if (eraser) {
         str = "On";
@@ -93,39 +96,45 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 colors[], u8 len,
     hidTouchRead(&touch);
     if (touch.px != 0 || touch.py != 0) {
         if (last_touch.px != 0 || last_touch.py != 0) {
-            u32 color;
-            float thickness;
             if (eraser) {
-                color = clrBackground;
-                thickness = get_thickness(last_touch.px, last_touch.py,
-                                          touch.px, touch.py, erase_size);
-                C2D_DrawLine(last_touch.px, last_touch.py, color, touch.px,
-                             touch.py, color, thickness, 0);
-                draw_erase(&last_touch, erase_size, erase_border, clrWhite,
-                           clrWhite);
+                float thickness = get_thickness(last_touch.px, last_touch.py,
+                                                touch.px, touch.py, erase_size);
+                C2D_DrawLine(last_touch.px, last_touch.py, clrBackground,
+                             touch.px, touch.py, clrBackground, thickness, 0);
+                // draw_erase(&last_touch, erase_size, erase_border, clrWhite,
+                //            clrWhite);
+                C2D_DrawRectSolid(last_touch.px - (erase_size / 2.f),
+                                  last_touch.py - (erase_size / 2.f), 0.f,
+                                  erase_size, erase_size, clrWhite);
                 draw_erase(&touch, erase_size, erase_border, clrBlack,
                            clrWhite);
             } else {
-                color = colors[index];
-                thickness = 2.0;
-                C2D_DrawLine(last_touch.px, last_touch.py, color, touch.px,
-                             touch.py, color, thickness, 0);
+                if (remove_erase_drawing) {
+                    C2D_DrawRectSolid(last_touch.px - (erase_size / 2.f),
+                                      last_touch.py - (erase_size / 2.f), 0.f,
+                                      erase_size, erase_size, clrWhite);
+                }
+                C2D_DrawLine(last_touch.px, last_touch.py, colors[index],
+                             touch.px, touch.py, colors[index], 2.0, 0);
             }
             printf("\x1b[5;1HDrawing:  Y\x1b[K");
         }
         last_touch = touch;
     } else {
         if (eraser && (last_touch.px != 0 || last_touch.py != 0)) {
-            draw_erase(&last_touch, erase_size, erase_border, clrBackground,
-                       clrBackground);
+            // draw_erase(&last_touch, erase_size, erase_border, clrBackground,
+            //            clrBackground);
+            C2D_DrawRectSolid(last_touch.px - erase_size / 2.f,
+                              last_touch.py - erase_size / 2.f, 0.f, erase_size,
+                              erase_size, clrBackground);
         }
         last_touch.px = 0;
         last_touch.py = 0;
         printf("\x1b[5;1HDrawing:  N\x1b[K");
     }
-    // C3D_FrameEnd(0);
-    #undef clrWhite
-    #undef clrBlack
+// C3D_FrameEnd(0);
+#undef clrWhite
+#undef clrBlack
 }
 
 int main(int argc, char* argv[]) {
