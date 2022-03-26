@@ -12,6 +12,14 @@
 const char* color_name[] = {"Red", "Green", "Blue", "White", "Black"};
 const float erase_size = 10.f;
 const float erase_border = 1.f;
+// Create colors
+//clrRed, clrGreen, clrBlue, clrWhite, clrBlack with values saved in the order ABGR
+const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF000000};
+#define clrRed colors[0]
+#define clrGreen colors[1]
+#define clrBlue colors[2]
+#define clrWhite colors[3]
+#define clrBlack colors[4]
 
 float float_abs(float n) { return n < 0 ? -n : n; }
 
@@ -47,10 +55,12 @@ void draw_erase(touchPosition* touch, float e_size, float e_border,
                       erase_size - (erase_border * 2.f), c_background);
 }
 
-void draw(u32 kDown, C3D_RenderTarget* screen, u32 colors[], u8 len,
+void draw(u32 kDown, C3D_RenderTarget* screen, u8 len,
           u8 clrBgInd) {
-#define clrWhite colors[3]
-#define clrBlack colors[4]
+// defines
+// #define clrWhite colors[3]
+// #define clrBlack colors[4]
+    // save background color in a variable
     u32 clrBackground = colors[clrBgInd];
     static u8 index = 0;
     static bool eraser = 0;
@@ -133,8 +143,8 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 colors[], u8 len,
         printf("\x1b[5;1HDrawing:  N\x1b[K");
     }
 // C3D_FrameEnd(0);
-#undef clrWhite
-#undef clrBlack
+// #undef clrWhite
+// #undef clrBlack
 }
 
 int main(int argc, char* argv[]) {
@@ -150,15 +160,15 @@ int main(int argc, char* argv[]) {
     C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     // Create colors
-    u32 transparent = C2D_Color32(0x00, 0x00, 0x00, 0x00);
-    u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
-    u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
-    u32 clrRed = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
-    u32 clrBlue = C2D_Color32(0x00, 0x00, 0xFF, 0xFF);
-    u32 clrBlack = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
+    // u32 transparent = C2D_Color32(0x00, 0x00, 0x00, 0x00);
+    // u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    // u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
+    // u32 clrRed = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
+    // u32 clrBlue = C2D_Color32(0x00, 0x00, 0xFF, 0xFF);
+    // u32 clrBlack = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
 
 #define clrBackground clrWhite
-    u32 colors[] = {clrRed, clrGreen, clrBlue, clrWhite, clrBlack};
+    // u32 colors[] = {clrRed, clrGreen, clrBlue, clrWhite, clrBlack};
     u8 len = sizeof(colors) / sizeof(u32);
     time_t max = 60;
     time_t begin = time(NULL);
@@ -179,9 +189,9 @@ int main(int argc, char* argv[]) {
         // Respond to user input
         u32 kDown = hidKeysDown();
         if (kDown & KEY_START) break;  // break in order to return to hbmenu
-        draw(kDown, bottom, colors, len, 3);
+        
+        draw(kDown, bottom, len, 3);
         C3D_FrameEnd(0);
-        // gspWaitForVBlank();
         C3D_FrameEnd(0);
     }
 
