@@ -6,3 +6,4 @@ build/
 *.lst
 *.bat
 romfs/
+test/
