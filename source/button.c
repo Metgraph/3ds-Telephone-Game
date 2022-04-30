@@ -20,6 +20,22 @@ u16 buttonh_perc(u8 n, float perc_pad_x, bool border) {
 	return ret;
 }
 
+bool set_buttons(Button buttons[], size_t size, u16 paddingx, u16 paddingy, u16 screen_w, u16 screen_h){
+    u16 h=buttonh(size, paddingy, 1, 0, screen_h);
+    if(h==0){
+        return false;
+    }
+    u16 y=paddingy;
+    u16 w=screen_w - paddingx*2;
+    for (size_t i = 0; i < size; i++)
+    {
+        Button temp={paddingx, y, w, h};
+        buttons[i]=temp;
+    }
+    
+
+}
+
 //get which button is pressed, return -1 if no one is pressed
 int8_t get_clicked_button(touchPosition* touch, Button buttons[], size_t size){
     for (size_t i = 0; i < size; i++)
