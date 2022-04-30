@@ -196,9 +196,6 @@ void main_menu(u32 kDown, C3D_RenderTarget* screen1,
 	last_touch = touch;
 }
 
-// void set_step(){
-//     act_step=step;
-// }
 
 void generate_buttons(){
     set_buttons(buttons_list, 3, 30, 30, SCREEN_WIDTH, SCREEN_HEIGHT);
