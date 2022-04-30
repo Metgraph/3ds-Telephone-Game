@@ -200,7 +200,6 @@ void main_menu(u32 kDown, C3D_RenderTarget* screen1,
 void generate_buttons(){
     set_buttons(buttons_list, 3, 30, 30, SCREEN_WIDTH, SCREEN_HEIGHT);
     buttons_list[0].text = "Unisciti";
-    // buttons_list[0].func = set_step;
     buttons_list[1].text = "Crea";
 }
 
