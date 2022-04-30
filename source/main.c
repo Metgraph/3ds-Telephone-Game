@@ -6,9 +6,10 @@
 #include <string.h>
 #include <time.h>
 
+#include "button.h"
+
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
-
 
 #define clrRed colors[0]
 #define clrGreen colors[1]
@@ -18,14 +19,7 @@
 // define background color
 #define clrBackground clrWhite
 
-typedef struct Button{
-    u16 x;
-    u16 y;
-    u16 w;
-    u16 h;
-} Button;
-
-//global variables
+// global variables
 const char* color_name[] = {"Red", "Green", "Blue", "White", "Black"};
 const float erase_size = 10.f;
 const float erase_border = 1.f;
@@ -34,13 +28,16 @@ const float erase_border = 1.f;
 // ABGR
 const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
 					  0xFF000000};
-//main menu option
-const char* mm_opt[] = {"Unisciti", "Crea"};
-const u32 len_mm_opt = sizeof(mm_opt)/sizeof(char*);
 
 Button buttons_list[3];
+u8 len_buttons=sizeof(buttons_list)/sizeof(Button);
+
+enum steps { menu, drawing, create, join };
+static u8 act_step = menu;
 
 float float_abs(float n) { return n < 0 ? -n : n; }
+
+bool is_touching(touchPosition* touch) { return touch->px != 0 || touch->py != 0; }
 
 float get_thickness(float x1, float y1, float x2, float y2, float l) {
 	float x;
@@ -161,7 +158,7 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 		// save touch for the next itereation
 		last_touch = touch;
 	} else {
-		if (eraser && (last_touch.px != 0 || last_touch.py != 0)) {
+		if (eraser && is_touching(&last_touch)) {
 			// draw_erase(&last_touch, erase_size, erase_border, clrBackground,
 			//            clrBackground);
 			C2D_DrawRectSolid(last_touch.px - erase_size / 2.f,
@@ -178,25 +175,36 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 
 void main_menu(u32 kDown, C3D_RenderTarget* screen1,
 			   C3D_RenderTarget* screen2) {
-	static int8_t i = -1;
+	static u8 i = 0;
 	static touchPosition last_touch = {0, 0};
 	touchPosition touch;
 	hidTouchRead(&touch);
-    int8_t new_i = i;
-	if (last_touch.px == 0 && last_touch.py == 0) {
-		if (touch.px != 0 || touch.py != 0) {
-            
+	s8 new_i = i;
+	if (is_touching(&last_touch)) {
+		if (!is_touching(&touch)) {
+
 		}
-	}else{
-        if(kDown & KEY_DOWN){
-            i= (i+1)%len_mm_opt;
-        }else if(kDown & KEY_UP){
-            i = --i >=0 ? i : len_mm_opt -1;
-        }else if(kDown & KEY_A){
-            //TODO select
-        }
-    }
-    last_touch = touch;
+	} else {
+		if (kDown & KEY_DOWN) {
+			i = (i + 1) % len_buttons;
+		} else if (kDown & KEY_UP) {
+			i = --i >= 0 ? i : len_buttons - 1;
+		} else if (kDown & KEY_A) {
+			// TODO select
+		}
+	}
+	last_touch = touch;
+}
+
+// void set_step(){
+//     act_step=step;
+// }
+
+void generate_buttons(){
+    set_buttons(buttons_list, 3, 30, 30, SCREEN_WIDTH, SCREEN_HEIGHT);
+    buttons_list[0].text = "Unisciti";
+    // buttons_list[0].func = set_step;
+    buttons_list[1].text = "Crea";
 }
 
 int main(int argc, char* argv[]) {
@@ -208,14 +216,17 @@ int main(int argc, char* argv[]) {
 
 	// Get screen target
 	C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+	// C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+	C3D_RenderTarget* top = NULL;
 
 	u32 len = sizeof(colors) / sizeof(u32);
+	// svcSetTimer
 	time_t max = 60;
 	time_t begin = time(NULL);
 
-    //calculate buttons dimension
-    button_box.h = buttonh(2, 30, 1, 0);
-    button_box.w = SCREEN_WIDTH - 40;
+	// calculate buttons dimension
+	buttons_list[0].h = buttonh(2, 30, 1, 0, SCREEN_HEIGHT);
+	buttons_list[0].w = SCREEN_WIDTH - 40;
 	C2D_TargetClear(bottom, clrBackground);
 	// Main loop
 	while (aptMainLoop()) {
@@ -233,10 +244,20 @@ int main(int argc, char* argv[]) {
 		// Respond to user input
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) break;  // break in order to return to hbmenu
+		switch (act_step) {
+			case menu:
+				main_menu(kDown, bottom, top);
+				break;
 
-		draw(kDown, bottom, len, 3);
+			case drawing:
+				draw(kDown, bottom, len, 3);
+
+			default:
+				break;
+		}
+
 		C3D_FrameEnd(0);
-		C3D_FrameEnd(0);
+		// C3D_FrameEnd(0);
 	}
 
 	// Deinit libs
