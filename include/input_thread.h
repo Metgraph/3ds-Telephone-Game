@@ -19,5 +19,8 @@ struct Circular_buffer
 };
 
 void read_input(struct Circular_buffer* buffer);
+Input* get_buff_var(struct Circular_buffer* buffer, u8 i);
+void clear_buff(struct Circular_buffer* buffer);
+void clear_buff(struct Circular_buffer* buffer, u8 len);
 
 #endif
