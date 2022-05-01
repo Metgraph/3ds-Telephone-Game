@@ -25,6 +25,8 @@ const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
 // define background color
 #define clrBackground clrWhite
 
+Thread input_thread;
+
 float float_abs(float n) { return n < 0 ? -n : n; }
 
 float get_thickness(float x1, float y1, float x2, float y2, float l) {
