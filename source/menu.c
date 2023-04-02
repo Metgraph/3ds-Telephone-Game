@@ -40,7 +40,7 @@ static void get_new_curr_opt(u32 kDown){
     {
         curr_opt = (curr_opt - 1) >= 0 ? curr_opt - 1 : len_options - 1;
     }
-    printf("\x1b[9;1HTimer:    %hhd\x1b[K", curr_opt);
+    printf("\x1b[9;1HCurrOpt:    %hhd\x1b[K", curr_opt);
 }
 
 step run_menu(u32 kDown)
