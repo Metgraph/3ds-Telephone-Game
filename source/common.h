@@ -1,5 +1,6 @@
 #ifndef common_h
 #define common_h
+
 typedef enum
 {
 	MAIN_MENU,
