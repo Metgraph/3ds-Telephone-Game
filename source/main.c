@@ -20,7 +20,7 @@
 #define clrBackground clrWhite
 
 // global variables
-const char* color_name[] = {"Red", "Green", "Blue", "White", "Black"};
+const char *color_name[] = {"Red", "Green", "Blue", "White", "Black"};
 const float erase_size = 10.f;
 const float erase_border = 1.f;
 // Create colors
@@ -30,16 +30,23 @@ const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
 					  0xFF000000};
 
 Button buttons_list[3];
-const u8 len_buttons=sizeof(buttons_list)/sizeof(Button);
+const u8 len_buttons = sizeof(buttons_list) / sizeof(Button);
 
-enum steps { menu, drawing, create, join };
+enum steps
+{
+	menu,
+	drawing,
+	create,
+	join
+};
 static u8 act_step = menu;
 
 float float_abs(float n) { return n < 0 ? -n : n; }
 
-bool is_touching(touchPosition* touch) { return touch->px != 0 || touch->py != 0; }
+bool is_touching(touchPosition *touch) { return touch->px != 0 || touch->py != 0; }
 
-float get_thickness(float x1, float y1, float x2, float y2, float l) {
+float get_thickness(float x1, float y1, float x2, float y2, float l)
+{
 	float x;
 	if (x1 > x2)
 		x = x1 - x2;
@@ -61,8 +68,9 @@ float get_thickness(float x1, float y1, float x2, float y2, float l) {
 	// double sq_sin_gamma = 1 - pow(cos_gamma, 2);
 }
 
-void draw_erase(touchPosition* touch, float e_size, float e_border,
-				u32 c_border, u32 c_background) {
+void draw_erase(touchPosition *touch, float e_size, float e_border,
+				u32 c_border, u32 c_background)
+{
 	C2D_DrawRectSolid(touch->px - (e_size / 2.f), touch->py - (e_size / 2.f),
 					  0.f, e_size, e_size, c_border);
 	C2D_DrawRectSolid(touch->px - (e_size / 2.f) + e_border,
@@ -71,7 +79,8 @@ void draw_erase(touchPosition* touch, float e_size, float e_border,
 					  erase_size - (erase_border * 2.f), c_background);
 }
 
-void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
+void draw(u32 kDown, C3D_RenderTarget *screen, u32 len, u32 clrBgInd)
+{
 	// save background color in a variable
 	// u32 clrBackground = colors[clrBgInd];
 
@@ -80,19 +89,27 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 	static touchPosition last_touch = {0, 0};
 
 	// key down related actions
-	if (kDown & KEY_X) C2D_TargetClear(screen, clrBackground);
-	if (kDown & KEY_RIGHT) {
+	if (kDown & KEY_X)
+		C2D_TargetClear(screen, clrBackground);
+	if (kDown & KEY_RIGHT)
+	{
 		index = (index + 1) % len;
-	} else if (kDown & KEY_LEFT) {
-		if (index == 0x00) {
+	}
+	else if (kDown & KEY_LEFT)
+	{
+		if (index == 0x00)
+		{
 			index = len - 1;
-		} else {
+		}
+		else
+		{
 			index = index - 1;
 		}
 	}
 
 	bool remove_erase_drawing = 0;
-	if (kDown & KEY_B) {
+	if (kDown & KEY_B)
+	{
 		// check if is needed to clean eraser drawing
 		remove_erase_drawing =
 			eraser && (last_touch.px != 0 || last_touch.py != 0);
@@ -105,10 +122,13 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 	printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime() * 6.0f);
 	printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage() * 100.0f);
 	printf("\x1b[6;1HColor:   %s\x1b[K", color_name[index]);
-	char* str;
-	if (eraser) {
+	char *str;
+	if (eraser)
+	{
 		str = "On";
-	} else {
+	}
+	else
+	{
 		str = "Off";
 	}
 	printf("\x1b[7;1HEraser:   %s\x1b[K", str);
@@ -121,10 +141,13 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 	// if touch = {0,0} user is not pressing touch screen
 	touchPosition touch;
 	hidTouchRead(&touch);
-	if (touch.px != 0 || touch.py != 0) {
-		if (last_touch.px != 0 || last_touch.py != 0) {
+	if (touch.px != 0 || touch.py != 0)
+	{
+		if (last_touch.px != 0 || last_touch.py != 0)
+		{
 			// eraser
-			if (eraser) {
+			if (eraser)
+			{
 				// calculate the thickness so the line will fit the eraser
 				// dimension
 				float thickness = get_thickness(last_touch.px, last_touch.py,
@@ -141,10 +164,13 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 						   clrWhite);
 
 				// pencil
-			} else {
+			}
+			else
+			{
 				// if needed clear the area of last touch because there is
 				// eraser drawing to be removed
-				if (remove_erase_drawing) {
+				if (remove_erase_drawing)
+				{
 					C2D_DrawRectSolid(last_touch.px - (erase_size / 2.f),
 									  last_touch.py - (erase_size / 2.f), 0.f,
 									  erase_size, erase_size, clrWhite);
@@ -157,8 +183,11 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 		}
 		// save touch for the next itereation
 		last_touch = touch;
-	} else {
-		if (eraser && is_touching(&last_touch)) {
+	}
+	else
+	{
+		if (eraser && is_touching(&last_touch))
+		{
 			// draw_erase(&last_touch, erase_size, erase_border, clrBackground,
 			//            clrBackground);
 			C2D_DrawRectSolid(last_touch.px - erase_size / 2.f,
@@ -173,46 +202,38 @@ void draw(u32 kDown, C3D_RenderTarget* screen, u32 len, u32 clrBgInd) {
 	// #undef clrWhiteshowUnpublishedCommitsButton
 }
 
-void main_menu(u32 kDown, C3D_RenderTarget* screen1,
-			   C3D_RenderTarget* screen2) {
+void main_menu(u32 kDown, C3D_RenderTarget *screen1,
+			   C3D_RenderTarget *screen2)
+{
 	static u8 i = 0;
-	static touchPosition last_touch = {0, 0};
-	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-	C2D_SceneBegin(screen1);
-	C2D_TargetClear(screen1, clrBackground);
-	draw_button(&buttons_list[0]);
-	draw_button(&buttons_list[1]);
-	touchPosition touch;
-	hidTouchRead(&touch);
-	s8 new_i = i;
-	if (is_touching(&last_touch)) {
-		if (!is_touching(&touch)) {
-
-		}
-	} else {
-		if (kDown & KEY_DOWN) {
-			i = (i + 1) % len_buttons;
-		} else if (kDown & KEY_UP) {
-			i = --i >= 0 ? i : len_buttons - 1;
-		} else if (kDown & KEY_A) {
-			// TODO select
-		}
+	if (kDown & KEY_DOWN)
+	{
+		i = (i + 1) % len_buttons;
 	}
-	last_touch = touch;
+	else if (kDown & KEY_UP)
+	{
+		i = --i >= 0 ? i : len_buttons - 1;
+	}
+	else if (kDown & KEY_A)
+	{
+		// TODO select
+	}
 }
 
 // void set_step(){
 //     act_step=step;
 // }
 
-void generate_buttons(){
-    set_buttons(buttons_list, 3, 30, 30, SCREEN_WIDTH, SCREEN_HEIGHT);
-    buttons_list[0].text = "Unisciti";
-    // buttons_list[0].func = set_step;
-    buttons_list[1].text = "Crea";
+void generate_buttons()
+{
+	set_buttons(buttons_list, 3, 30, 10, SCREEN_WIDTH, SCREEN_HEIGHT);
+	buttons_list[0].text = "Unisciti";
+	// buttons_list[0].func = set_step;
+	buttons_list[1].text = "Crea";
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 	gfxInitDefault();
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -222,9 +243,9 @@ int main(int argc, char* argv[]) {
 	// act_step=drawing;
 
 	// Get screen target
-	C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+	C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	// C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-	C3D_RenderTarget* top = NULL;
+	C3D_RenderTarget *top = NULL;
 
 	u32 len = sizeof(colors) / sizeof(u32);
 	// svcSetTimer
@@ -236,13 +257,15 @@ int main(int argc, char* argv[]) {
 	buttons_list[0].w = SCREEN_WIDTH - 40;
 	C2D_TargetClear(bottom, clrBackground);
 	// Main loop
-	while (aptMainLoop()) {
+	while (aptMainLoop())
+	{
 		hidScanInput();
 
 		// TODO code to execute when time finished
 		time_t timer = max - (time(NULL) - begin);
 		printf("\x1b[8;1HTimer:    %lld\x1b[K", timer);
-		if (timer < 1) {
+		if (timer < 1)
+		{
 			C2D_TargetClear(bottom, clrBackground);
 			timer = max;
 			begin = time(NULL);
@@ -250,18 +273,20 @@ int main(int argc, char* argv[]) {
 
 		// Respond to user input
 		u32 kDown = hidKeysDown();
-		if (kDown & KEY_START) break;  // break in order to return to hbmenu
-		switch (act_step) {
-			case menu:
-				generate_buttons();
-				main_menu(kDown, bottom, top);
-				break;
+		if (kDown & KEY_START)
+			break; // break in order to return to hbmenu
+		switch (act_step)
+		{
+		case menu:
+			generate_buttons();
+			main_menu(kDown, bottom, top);
+			break;
 
-			case drawing:
-				draw(kDown, bottom, len, 3);
+		case drawing:
+			draw(kDown, bottom, len, 3);
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		C3D_FrameEnd(0);

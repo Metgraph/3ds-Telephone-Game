@@ -3,9 +3,10 @@
 #include <citro2d.h>
 
 //get height of each button
-u16 buttonh(u8 n, u16 paddingx, bool border, u16 minh, u16 height) {
+//if minh is not 0, return 0 if the calculated height is less than minh
+u16 buttonh(u8 n, u16 padding, bool border, u16 minh, u16 height) {
 	n = border ? n + 1 : n - 1;
-    u16 ret = (height - (n)*paddingx) / n;
+    u16 ret = (height - (n)*padding) / n;
 	if (minh != 0) {
 		return ret * (ret >= minh);
 	}
@@ -13,9 +14,9 @@ u16 buttonh(u8 n, u16 paddingx, bool border, u16 minh, u16 height) {
 }
 
 //get height of each button based on perc
-u16 buttonh_perc(u8 n, float perc_pad_x, bool border) {
-	float sum = border ? perc_pad_x : -perc_pad_x;
-    float den = 1 / perc_pad_x;
+u16 buttonh_perc(u8 n, float perc_pad, bool border) {
+	float sum = border ? perc_pad : -perc_pad;
+    float den = 1 / perc_pad;
 	printf("Denominatore: %f\n", den);
 	u16 ret = (u16)240 / ((den + 1) / den * n + sum);
 	// h = (x+(x/y)) * n -> (xy+x)/y*n = h ->
