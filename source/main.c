@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "button.h"
+#include "common.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -32,14 +33,8 @@ const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
 Button buttons_list[3];
 const u8 len_buttons = sizeof(buttons_list) / sizeof(Button);
 
-enum steps
-{
-	menu,
-	drawing,
-	create,
-	join
-};
-static u8 act_step = menu;
+
+static u8 act_step = MENU;
 
 float float_abs(float n) { return n < 0 ? -n : n; }
 
