@@ -1,4 +1,6 @@
 #include "button.h"
+#include <3ds.h>
+#include <citro2d.h>
 
 //get height of each button
 u16 buttonh(u8 n, u16 paddingx, bool border, u16 minh, u16 height) {
@@ -23,16 +25,21 @@ u16 buttonh_perc(u8 n, float perc_pad_x, bool border) {
 void set_buttons(Button buttons[], u8 size, u16 paddingx, u16 paddingy, u16 screen_w, u16 screen_h){
     u16 h=buttonh(size, paddingy, 1, 0, screen_h);
     if(h==0){
-        return false;
+        return;
     }
     u16 y=paddingy;
     u16 w=screen_w - paddingx*2;
     for (size_t i = 0; i < size; i++)
     {
         Button temp={paddingx, y, w, h};
+        y+=h+paddingy;
         buttons[i]=temp;
     }
 
+}
+
+void draw_button(Button *button){
+    C2D_DrawRectSolid(button->x, button->y,0,button->w, button->h, 0xFF0000FF);
 }
 
 //get which button is pressed, return -1 if no one is pressed

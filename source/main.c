@@ -30,7 +30,7 @@ const u32 colors[] = {0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF,
 					  0xFF000000};
 
 Button buttons_list[3];
-u8 len_buttons=sizeof(buttons_list)/sizeof(Button);
+const u8 len_buttons=sizeof(buttons_list)/sizeof(Button);
 
 enum steps { menu, drawing, create, join };
 static u8 act_step = menu;
@@ -177,6 +177,11 @@ void main_menu(u32 kDown, C3D_RenderTarget* screen1,
 			   C3D_RenderTarget* screen2) {
 	static u8 i = 0;
 	static touchPosition last_touch = {0, 0};
+	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	C2D_SceneBegin(screen1);
+	C2D_TargetClear(screen1, clrBackground);
+	draw_button(&buttons_list[0]);
+	draw_button(&buttons_list[1]);
 	touchPosition touch;
 	hidTouchRead(&touch);
 	s8 new_i = i;
@@ -214,6 +219,8 @@ int main(int argc, char* argv[]) {
 	C2D_Prepare();
 	consoleInit(GFX_TOP, NULL);
 
+	// act_step=drawing;
+
 	// Get screen target
 	C3D_RenderTarget* bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 	// C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -246,6 +253,7 @@ int main(int argc, char* argv[]) {
 		if (kDown & KEY_START) break;  // break in order to return to hbmenu
 		switch (act_step) {
 			case menu:
+				generate_buttons();
 				main_menu(kDown, bottom, top);
 				break;
 
