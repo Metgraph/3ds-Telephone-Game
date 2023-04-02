@@ -202,22 +202,42 @@ void draw(u32 kDown, C3D_RenderTarget *screen, u32 len, u32 clrBgInd)
 	// #undef clrWhiteshowUnpublishedCommitsButton
 }
 
-void main_menu(u32 kDown, C3D_RenderTarget *screen1,
-			   C3D_RenderTarget *screen2)
+void main_menu(u32 kDown, PrintConsole *bottom,
+			   PrintConsole *top)
 {
+	const char* menu_options[]={"button 1", "button 2", "button 3"};
+	const u8 len_options=sizeof(menu_options)/sizeof(char*);
 	static u8 i = 0;
-	if (kDown & KEY_DOWN)
-	{
-		i = (i + 1) % len_buttons;
-	}
-	else if (kDown & KEY_UP)
-	{
-		i = --i >= 0 ? i : len_buttons - 1;
-	}
-	else if (kDown & KEY_A)
+	if (kDown & KEY_A)
 	{
 		// TODO select
+	}else{
+		if (kDown & KEY_DOWN)
+		{
+			i = (i + 1) % len_options;
+		}
+		else if (kDown & KEY_UP)
+		{
+			i = (i-1) >= 0 ? i-1 : len_options - 1;
+		}
+		printf("\x1b[9;1Hselected:    %hhd\x1b[K", i);
+		consoleSelect(bottom);
+		printf("\x1b[5;1H");
+		for (u8 line = 0; line < len_options; line++)
+		{
+			//colors in sgr section, colors, range 30-37
+		 //http://en.wikipedia.org/wiki/ANSI_escape_code#CSI_codes
+			if(line==i){
+				printf("\x1b[4C\x1b[32m%s\x1b[0m\x1b[K\n", menu_options[line]);
+			}else{
+				printf("\x1b[4C%s\x1b[K\n", menu_options[line]);
+
+			}
+		}
+		
+
 	}
+	
 }
 
 // void set_step(){
@@ -234,11 +254,14 @@ void generate_buttons()
 
 int main(int argc, char *argv[])
 {
+	PrintConsole top_print, bottom_print;
 	gfxInitDefault();
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
-	consoleInit(GFX_TOP, NULL);
+	// consoleInit(GFX_TOP, NULL);
+	consoleInit(GFX_TOP, &top_print);
+	consoleInit(GFX_BOTTOM, &bottom_print);
 
 	// act_step=drawing;
 
@@ -259,6 +282,8 @@ int main(int argc, char *argv[])
 	// Main loop
 	while (aptMainLoop())
 	{
+		//default screen for print
+		consoleSelect(&top_print);
 		hidScanInput();
 
 		// TODO code to execute when time finished
@@ -279,7 +304,7 @@ int main(int argc, char *argv[])
 		{
 		case menu:
 			generate_buttons();
-			main_menu(kDown, bottom, top);
+			main_menu(kDown, &bottom_print, &top_print);
 			break;
 
 		case drawing:
