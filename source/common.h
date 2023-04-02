@@ -1,10 +1,17 @@
 #ifndef common_h
 #define common_h
-enum steps
+typedef enum
 {
-	MENU,
+	MAIN_MENU,
 	DRAWING,
 	CREATE,
-	JOIN
-};
+	JOIN,
+    UNDEFINED
+} step;
+
+typedef enum
+{
+    TOPSCREEN,
+    BOTTOMSCREEN
+} screenID;
 #endif

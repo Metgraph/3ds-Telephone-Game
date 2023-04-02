@@ -8,6 +8,7 @@
 
 #include "button.h"
 #include "common.h"
+#include "menu.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -34,11 +35,20 @@ Button buttons_list[3];
 const u8 len_buttons = sizeof(buttons_list) / sizeof(Button);
 
 
-static u8 act_step = MENU;
+static step act_step = MAIN_MENU;
 
-float float_abs(float n) { return n < 0 ? -n : n; }
+static float float_abs(float n) { return n < 0 ? -n : n; }
 
-bool is_touching(touchPosition *touch) { return touch->px != 0 || touch->py != 0; }
+static bool is_touching(touchPosition *touch) { return touch->px != 0 || touch->py != 0; }
+
+static bool has_step_changed(step curr_step){
+	static step old_step = UNDEFINED;
+	bool ret = old_step != curr_step;
+	old_step=curr_step;
+	return ret;
+}
+
+
 
 float get_thickness(float x1, float y1, float x2, float y2, float l)
 {
@@ -197,48 +207,6 @@ void draw(u32 kDown, C3D_RenderTarget *screen, u32 len, u32 clrBgInd)
 	// #undef clrWhiteshowUnpublishedCommitsButton
 }
 
-void main_menu(u32 kDown, PrintConsole *bottom,
-			   PrintConsole *top)
-{
-	const char* menu_options[]={"button 1", "button 2", "button 3"};
-	const u8 len_options=sizeof(menu_options)/sizeof(char*);
-	static u8 i = 0;
-	if (kDown & KEY_A)
-	{
-		// TODO select
-	}else{
-		if (kDown & KEY_DOWN)
-		{
-			i = (i + 1) % len_options;
-		}
-		else if (kDown & KEY_UP)
-		{
-			i = (i-1) >= 0 ? i-1 : len_options - 1;
-		}
-		printf("\x1b[9;1Hselected:    %hhd\x1b[K", i);
-		consoleSelect(bottom);
-		printf("\x1b[5;1H");
-		for (u8 line = 0; line < len_options; line++)
-		{
-			//colors in sgr section, colors, range 30-37
-		 //http://en.wikipedia.org/wiki/ANSI_escape_code#CSI_codes
-			if(line==i){
-				printf("\x1b[4C\x1b[32m%s\x1b[0m\x1b[K\n", menu_options[line]);
-			}else{
-				printf("\x1b[4C%s\x1b[K\n", menu_options[line]);
-
-			}
-		}
-		
-
-	}
-	
-}
-
-// void set_step(){
-//     act_step=step;
-// }
-
 void generate_buttons()
 {
 	set_buttons(buttons_list, 3, 30, 10, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -250,6 +218,10 @@ void generate_buttons()
 int main(int argc, char *argv[])
 {
 	PrintConsole top_print, bottom_print;
+	const char* main_menu_options[]={"option 1", "option 2", "option 3"};
+	const step main_menu_actions[]={DRAWING, MAIN_MENU, MAIN_MENU};
+	const u8 main_menu_len=sizeof(main_menu_options)/sizeof(char*);
+
 	gfxInitDefault();
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -258,7 +230,7 @@ int main(int argc, char *argv[])
 	consoleInit(GFX_TOP, &top_print);
 	consoleInit(GFX_BOTTOM, &bottom_print);
 
-	// act_step=drawing;
+	// act_step=DRAWING;
 
 	// Get screen target
 	C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
@@ -274,10 +246,12 @@ int main(int argc, char *argv[])
 	buttons_list[0].h = buttonh(2, 30, 1, 0, SCREEN_HEIGHT);
 	buttons_list[0].w = SCREEN_WIDTH - 40;
 	C2D_TargetClear(bottom, clrBackground);
+
+	set_screen(BOTTOMSCREEN, &bottom_print);
 	// Main loop
 	while (aptMainLoop())
 	{
-		//default screen for print
+		// default screen for print
 		consoleSelect(&top_print);
 		hidScanInput();
 
@@ -295,14 +269,20 @@ int main(int argc, char *argv[])
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START)
 			break; // break in order to return to hbmenu
+
+		bool step_changed = has_step_changed(act_step);
 		switch (act_step)
 		{
-		case menu:
-			generate_buttons();
-			main_menu(kDown, &bottom_print, &top_print);
+		case MAIN_MENU:
+			if(step_changed){
+
+				set_menu_options(main_menu_options, main_menu_actions, main_menu_len, MAIN_MENU);
+			}
+			// generate_buttons();
+			act_step=run_menu(kDown);
 			break;
 
-		case drawing:
+		case DRAWING:
 			draw(kDown, bottom, len, 3);
 
 		default:
