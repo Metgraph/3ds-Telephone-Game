@@ -8,7 +8,9 @@
 #define P_BOTTOM_ROW 30
 #define P_BOTTOM_COL 40
 
-void set_screen(screenID screen_id, PrintConsole *screen);
+void init_menu();
+void destroy_menu();
+void set_screen(screenID screen_id, C3D_RenderTarget *screen);
 void set_menu_options(const char* new_menu_options[], const step new_menu_actions[], u8 options_sz, step default_action);
 step run_menu(u32 kDown);
 u8 get_curr_opt();

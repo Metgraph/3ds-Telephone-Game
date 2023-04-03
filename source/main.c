@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
 	C2D_Prepare();
 	// consoleInit(GFX_TOP, NULL);
 	consoleInit(GFX_TOP, &top_print);
-	consoleInit(GFX_BOTTOM, &bottom_print);
+	// consoleInit(GFX_BOTTOM, &bottom_print);
+	init_menu();
 
 	// act_step=DRAWING;
 
@@ -66,7 +67,8 @@ int main(int argc, char *argv[])
 	buttons_list[0].w = SCREEN_WIDTH - 40;
 	C2D_TargetClear(bottom, clrBackground);
 
-	set_screen(BOTTOMSCREEN, &bottom_print);
+	// set_screen(BOTTOMSCREEN, &bottom_print);
+	set_screen(BOTTOMSCREEN, bottom);
 	// Main loop
 	while (aptMainLoop())
 	{
@@ -113,6 +115,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Deinit libs
+	destroy_menu();
 	C2D_Fini();
 	C3D_Fini();
 	gfxExit();
